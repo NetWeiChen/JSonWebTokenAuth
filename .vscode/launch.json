@@ -1,0 +1,39 @@
+{
+    // Use IntelliSense to learn about possible Node.js debug attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // Use this to get debug version of Chrome running:
+            // /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
+            "name": "Attach",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "webRoot": "${workspaceRoot}"
+        }
+
+    ]
+    // "configurations": [
+        
+    //     {
+    //         "name": "Launch Chrome against localhost",
+    //         "type": "chrome",
+    //         "request": "launch",
+    //         "url": "http://localhost:3000",
+    //         "sourceMaps": true,
+    //         "webRoot": "${workspaceRoot}"
+    //     },
+    //     {
+    //         "name": "Attach to Chrome",
+    //         "type": "chrome",
+    //         "request": "attach",
+    //         "port": 9222,
+    //         "url": "http://localhost:3000",
+    //         "sourceMaps": true,
+    //         "webRoot": "${workspaceRoot}"
+    //     }
+    // ]
+
+}
