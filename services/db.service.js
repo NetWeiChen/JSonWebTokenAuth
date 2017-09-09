@@ -39,3 +39,26 @@ exports.executeSql = function (sql, callback) {
 
 
 };
+
+function executeStoredProc(sql) {
+    //2. 
+    var dbConn = new sql.Connection(config);
+    dbConn.connect().then(function () {
+         
+        //3.
+        var request = new sql.Request(dbConn);
+        request.input('Salary', sql.Int, 50000)
+        .execute(sql).then(function (recordSet) {
+            //4.
+            console.log(recordSet);
+            dbConn.close();
+        }).catch(function (err) {
+            //5.
+            console.log(err);
+            dbConn.close();
+        });
+    }).catch(function (err) {
+        //6.
+        console.log(err);
+    });
+}
