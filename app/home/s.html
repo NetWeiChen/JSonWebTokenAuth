@@ -1,0 +1,106 @@
+<form class="form-horizontal" 
+      ng-submit="save()"
+      ng-controller="successorController">
+    <p></p>
+    <p />
+    <!-- error msg-->
+    <div class="form-group">
+        <div class="bs-example" ng-show="hasErrors == true">
+            <div class="alert alert-danger fade in">
+                <a href="#" class="close" data-dismiss="alert">&times;</a>
+                <strong>Error!</strong> A problem has been occurred....
+            </div>
+        </div>
+        <div class="bs-example" ng-show="hasErrors == false">
+            <div class="alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert">&times;</a>
+                <strong>Success!</strong> Your message has been sent successfully.
+            </div>
+        </div>
+    </div>
+
+    <p></p>
+    <p></p>
+    <!-- predecessor and successor -->
+    <div class="form-group">
+        <label for="predecessor" class="control-label col-sm-2" style="text-align: left">Predecessors:  </label>
+        <div class="col-sm-4">
+            <select class="form-control"
+                    id="predecessor"
+                    required
+                    ng-model="selectedPredecessor"
+                    ng-options="predecessor.usr_nm for predecessor in predecessors"
+                    ng-change="updatePredecessor()">
+                    <option value="">Select a predecessor</option>
+            </select>
+        </div>
+        <label for="successor" class="control-label col-sm-2">Successors:  </label>
+        <div class="col-sm-4">
+            <select class="form-control"
+                    required
+                    id="successor"
+                    ng-model="selectedSuccessor"
+                    ng-options="successor.usr_nm for successor in successors"
+                    ng-change="updateSuccessor()">
+                    <option value="">Select a successor</option> 
+            </select>
+        </div>
+    </div>
+
+
+     <!--likelihood to move-->
+    <div class="form-group">
+        
+        <label for="predecessor" class="control-label col-sm-6" style="text-align: left">
+        Your Successors: </label>
+        
+        <div>
+        <label for="successor" class="control-label col-sm-2">Replacement Readiness:  </label>
+        <div class="col-sm-4">
+                <select class="form-control"
+                        id="readinessTobeReplacement"
+                        required
+                        ng-model="selectedReadiness"
+                        ng-options="readiness.LDRSHP_RDYNSS_CD for readiness in  readinessTobeAReplacement"
+                        ng-disabled="!showSuccessorQuestions">
+                    <option value="">Select....</option>
+                </select>
+        </div>
+        </div>
+    </div>
+
+  
+
+
+    <div class="form-group">
+            <div class="col-sm-6">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Lastname</th>
+                            <th>Firstname</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-show="yourSuccessors.length <= 0">
+                            <td>no successor</td>
+                            <td></td>
+                        </tr>
+                        <tr ng-repeat="successor in yourSuccessors">
+                            <td>{{ successor.lastName }}</td>
+                            <td>{{ successor.firstName }}</td>
+                            <td><a href="#" ng-click="">Delete</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-offset-2 col-sm-4">
+                <button type="submit" class="btn btn-primary" style="float:right" >Submit</button>
+            </div>
+    </div>
+</form>
+
+        
+ 
+   
