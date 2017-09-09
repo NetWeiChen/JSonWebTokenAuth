@@ -1,0 +1,247 @@
+(function () {
+    'use strict';
+    
+    angular
+        .module('app')
+        .controller('successorController', SuccessorController);
+    function SuccessorController($scope, $http, $rootScope){
+        $scope.hasErrors = null;
+        $scope.showPredecessorQuestions = false;
+        $scope.showSuccessorQuestions = false;
+        $scope.timeFrameToLeave = [{
+                "MOVE_TMFRM_CD": "less than 3 months",
+                "value": "01"
+            }, 
+            {
+                "MOVE_TMFRM_CD": "3 to 12 months",
+                "value": "02"
+            }, 
+            {
+                "MOVE_TMFRM_CD": "greater than 12 months",
+                "value": "03"
+            }];
+        
+        $scope.readinessTobeAReplacement = [{
+                "LDRSHP_RDYNSS_CD": "Now",
+                "value": "01"
+            }, 
+            {
+                "LDRSHP_RDYNSS_CD": "Less than 12 months",
+                "value": "02"
+            }, 
+            {
+                "LDRSHP_RDYNSS_CD": "Greater than 12 months",
+                "value": "03"
+            }]
+        
+            
+       
+        GetCurrentSuccessors($rootScope.currentUser.CUSTM_USRID);
+        GetUserNames();
+        
+
+        $scope.save = function () {
+            var selectedSuccessor = $scope.selectedSuccessor;
+            var selectedPredecessor = $scope.selectedPredecessor;
+            var data = {
+                // fields for predecessor
+                "RSRC_ID": selectedPredecessor.rsrc_id,
+                "LIKELY_TO_MOVE_IND": $scope.likelihoodToMove,
+                "MOVE_TMFRM_CD": $scope.selectedTimeFrameToMove.value,
+                "ROL_IMPNC_CD": $scope.importanceToCurrentRole,
+                // fields for successor
+                "CUSTM_USRID": selectedSuccessor.custm_usrid,
+                "LDRSHP_RDYNSS_CD": $scope.selectedReadiness.value
+            };
+
+           $http.put('/api/resource/predecessorResource', data).then(function (response, status) {
+                if (response.status == 200) {
+                    $scope.hasErrors = false;
+                    if ($scope.selectedPredecessor.custm_usrid == $rootScope.currentUser.CUSTM_USRID) {
+                        if (selectedSuccessor.usr_nm) {
+                            var res = selectedSuccessor.usr_nm.split(",");
+                            if (res.length > 1) {
+                                $scope.yourSuccessors.push({
+                                    lastName: res[0],
+                                    firstName: res[1]
+                                });
+                            }
+                        }
+                    }
+                   
+                }
+            }).catch(function (e) {
+                $scope.hasErrors = true;
+                console.log(e);
+            });
+        }
+        
+        $scope.updateSuccessor = function () {
+            $scope.showSuccessorQuestions = ($scope.selectedSuccessor != undefined);
+            if ($scope.selectedSuccessor && $scope.selectedSuccessor.rsrc_id) {
+                GetAllQuestions($scope.selectedSuccessor.rsrc_id, populateSuccessorQuestions);
+            } else {
+                populateSuccessorQuestions(null);
+            }
+        }
+        
+        
+        function GetCurrentSuccessors(userID) {
+            
+                if (userID) {
+                    $rootScope.spinner = true;
+                    $http.get("/api/resource/succussorsByUserID/?userID=" + userID).then(function (response, status) {
+                        if (response.data) {
+                            $scope.yourSuccessors = [];
+                            for (var i = 0; i < response.data.length; i++) {
+                                var user = response.data[i];
+                                if (user) {
+                                    
+                                    if (user.USR_NM) {
+                                        var res = user.USR_NM.split(",");
+                                        if (res.length > 1) {
+                                            $scope.yourSuccessors.push({
+                                                lastName: res[0],
+                                                firstName: res[1]
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }).catch(function (e) {
+                        $scope.hasErrors = true;
+                        console.log(e);
+                    }).finally(function () {
+                        $rootScope.spinner = false;
+                    });
+                }
+        }
+
+        
+        
+        
+
+        //function GetCurrentSuccessors(){
+        //    if ($rootScope.currentUser) {
+        //        if ($rootScope.currentUser.CUSTM_USRID) {
+        //            $rootScope.spinner = true;
+        //            $http.get("/api/resource/succussorsByUserID/?userID=" + $rootScope.currentUser.CUSTM_USRID).then(function (response, status) {
+        //                if (response.data) {
+        //                    $scope.yourSuccessors = [];
+        //                    for (var i = 0; i < response.data.length; i++) {
+        //                        var user = response.data[i];
+        //                        if (user) {
+                                    
+        //                            if (user.USR_NM) {
+        //                                var res = user.USR_NM.split(",");
+        //                                if (res.length > 1) {
+        //                                    $scope.yourSuccessors.push({
+        //                                        lastName: res[0],
+        //                                        firstName: res[1]
+        //                                    });
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }).catch(function (e) {
+        //                $scope.hasErrors = true;
+        //                console.log(e);
+        //            }).finally(function () {
+        //                $rootScope.spinner = false;
+        //            });
+        //        }
+        //    }
+        //}
+        function populateSuccessorQuestions(data){
+            if (data) {
+                var result = $scope.readinessTobeAReplacement.filter(function (item) {
+                    if (item.value === data.LDRSHP_RDYNSS_CD) {
+                        return item;
+                    }
+                });
+                if (result.length > 0) {
+                    $scope.selectedReadiness = result[0];
+                }
+            } else {
+                $scope.selectedReadiness = '';
+            }
+        }
+        
+        $scope.updatePredecessor = function (){
+            $scope.showPredecessorQuestions = ($scope.selectedPredecessor != undefined);
+            if ($scope.selectedPredecessor && $scope.selectedPredecessor.custm_usrid) {
+                //GetAllQuestions($scope.selectedPredecessor.rsrc_id, populatePredecessorQuestions);
+                GetCurrentSuccessors($scope.selectedPredecessor.custm_usrid);
+            } else {
+                populatePredecessorQuestions(null);
+            }
+        }
+        
+        function populatePredecessorQuestions(data){
+            if (data) {
+                $scope.likelihoodToMove = data.LIKELY_TO_MOVE_IND;
+                $scope.importanceToCurrentRole = data.ROL_IMPNC_CD;
+                var result = $scope.timeFrameToLeave.filter(function (item) {
+                    if (item.value === data.MOVE_TMFRM_CD) {
+                        return item;
+                    }
+                });
+                if (result.length > 0) {
+                    $scope.selectedTimeFrameToMove = result[0];
+                }
+            } else {
+                $scope.likelihoodToMove = '';
+                $scope.importanceToCurrentRole = '';
+                $scope.selectedTimeFrameToMove = '';
+            }
+        }
+        
+        
+         
+        function GetAllQuestions(resourceID, callback){
+            if (resourceID) {
+                $rootScope.spinner = true;
+                $http.get('/api/resource/resourceByResourceID/?resourceID=' + resourceID)
+                .then(function (response) {
+                    if (response.data.length > 0) {
+                        callback(response.data[0]);
+                    } else {
+                        console.log("GetResouceID has no data");
+                    }
+                })
+                .catch(function (e) {
+                    $scope.hasErrors = true;
+                    console.log(e);
+                }).finally(function (){
+                    $rootScope.spinner = false;
+                })
+            }
+        }
+        
+        
+        function GetUserNames(){
+            $rootScope.spinner = true;
+            $http.get('/api/users/userNames')
+             .then(function (response) {
+                $scope.successors = response.data;
+                $scope.predecessors = response.data;
+                var temp = response.data.filter(function (item) {
+                    return item.custm_usrid ==  $rootScope.currentUser.CUSTM_USRID;
+                });
+                if (temp && temp.length > 0) {
+                    $scope.selectedPredecessor = temp[0];
+                    GetAllQuestions($scope.selectedPredecessor.rsrc_id, populatePredecessorQuestions);
+                }
+                $scope.showPredecessorQuestions = ($scope.selectedPredecessor != undefined);
+            })
+            .catch(function (e) {
+                $scope.hasErrors = true;
+                console.log('Error: ', e);
+            }).finally(function () {
+                $rootScope.spinner = false;    
+            });
+        }
+    }
+})();
