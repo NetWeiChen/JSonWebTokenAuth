@@ -3,6 +3,31 @@ var express = require('express');
 var router = express.Router();
 var userService = require('../../services/user.service');
 var sqlDbService = require('../../services/db.service');
+
+
+// var jwt = require('jsonwebtoken');
+
+
+// router.use(function (req, res, next) {
+       
+//        var token = req.body.token || req.headers['token'] || req.query.token || req.headers['x-access-token'] || req.session.token ;
+//        console.log('users.controllers has been invoked! and token = ' +token + ' ' + req.sessionID +' ' +  req.session.token );
+//        if (token) {
+//            jwt.verify(token,"SP_|Tool|_Key", function (err, decode) {
+//                if (err) {
+//                    res.status(500).send("invalid token");
+//                } else {
+//                    console.log('req.decode = ' + JSON.stringify(decode));
+//                    req.decode = decode;
+//                    //req.sub = decode.sub
+//                    next(JSON.stringify(req.decode));
+//                }
+//            })
+//        } else {
+//            res.send("please send a token to further process your request");
+//        }
+//     })
+
 // routes
 router.post('/authenticate', authenticateUser);
 router.post('/register', registerUser);
